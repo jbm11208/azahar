@@ -1419,6 +1419,8 @@ void OpenFStream<std::ios_base::out>(
     boost::iostreams::file_descriptor_sink file_descriptor_sink(fd, boost::iostreams::close_handle);
     fstream.open(file_descriptor_sink);
 }
+}
+             }
 } // namespace FileUtil
 
 SERIALIZE_EXPORT_IMPL(FileUtil::IOFile)
