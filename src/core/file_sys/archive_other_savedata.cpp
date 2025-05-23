@@ -70,9 +70,11 @@ ResultVal<std::unique_ptr<ArchiveBackend>> ArchiveFactory_OtherSaveDataPermitted
     u64 program_id;
     CASCADE_RESULT(std::tie(media_type, program_id), ParsePathPermitted(path));
 
+    // For games that try to access SD savedata as if it were from GameCard
+    // Just use the SD card source regardless of whether media_type is GameCard or SDMC
     if (media_type == MediaType::GameCard) {
-        LOG_WARNING(Service_FS, "(stubbed) Unimplemented media type GameCard");
-        return ResultGamecardNotInserted;
+        LOG_WARNING(Service_FS,
+                    "Handling GameCard media type as SDMC for SD savedata access (Permitted)");
     }
 
     return sd_savedata_source->Open(Service::FS::ArchiveIdCode::OtherSaveDataPermitted, path,
@@ -93,9 +95,12 @@ ResultVal<ArchiveFormatInfo> ArchiveFactory_OtherSaveDataPermitted::GetFormatInf
     u64 program_id;
     CASCADE_RESULT(std::tie(media_type, program_id), ParsePathPermitted(path));
 
+    // For games that try to access SD savedata as if it were from GameCard
+    // Just use the SD card source regardless of whether media_type is GameCard or SDMC
     if (media_type == MediaType::GameCard) {
-        LOG_WARNING(Service_FS, "(stubbed) Unimplemented media type GameCard");
-        return ResultGamecardNotInserted;
+        LOG_WARNING(
+            Service_FS,
+            "Handling GameCard media type as SDMC for SD savedata GetFormatInfo (Permitted)");
     }
 
     return sd_savedata_source->GetFormatInfo(
@@ -112,9 +117,10 @@ ResultVal<std::unique_ptr<ArchiveBackend>> ArchiveFactory_OtherSaveDataGeneral::
     u64 program_id;
     CASCADE_RESULT(std::tie(media_type, program_id), ParsePathGeneral(path));
 
+    // For games that try to access SD savedata as if it were from GameCard
+    // Just use the SD card source regardless of whether media_type is GameCard or SDMC
     if (media_type == MediaType::GameCard) {
-        LOG_WARNING(Service_FS, "(stubbed) Unimplemented media type GameCard");
-        return ResultGamecardNotInserted;
+        LOG_WARNING(Service_FS, "Handling GameCard media type as SDMC for SD savedata access");
     }
 
     return sd_savedata_source->Open(Service::FS::ArchiveIdCode::OtherSaveDataGeneral, path,
@@ -129,9 +135,10 @@ Result ArchiveFactory_OtherSaveDataGeneral::Format(const Path& path,
     u64 program_id;
     CASCADE_RESULT(std::tie(media_type, program_id), ParsePathGeneral(path));
 
+    // For games that try to access SD savedata as if it were from GameCard
+    // Just use the SD card source regardless of whether media_type is GameCard or SDMC
     if (media_type == MediaType::GameCard) {
-        LOG_WARNING(Service_FS, "(stubbed) Unimplemented media type GameCard");
-        return ResultGamecardNotInserted;
+        LOG_WARNING(Service_FS, "Handling GameCard media type as SDMC for SD savedata format");
     }
 
     return sd_savedata_source->Format(program_id, format_info,
@@ -145,9 +152,11 @@ ResultVal<ArchiveFormatInfo> ArchiveFactory_OtherSaveDataGeneral::GetFormatInfo(
     u64 program_id;
     CASCADE_RESULT(std::tie(media_type, program_id), ParsePathGeneral(path));
 
+    // For games that try to access SD savedata as if it were from GameCard
+    // Just use the SD card source regardless of whether media_type is GameCard or SDMC
     if (media_type == MediaType::GameCard) {
-        LOG_WARNING(Service_FS, "(stubbed) Unimplemented media type GameCard");
-        return ResultGamecardNotInserted;
+        LOG_WARNING(Service_FS,
+                    "Handling GameCard media type as SDMC for SD savedata GetFormatInfo");
     }
 
     return sd_savedata_source->GetFormatInfo(
