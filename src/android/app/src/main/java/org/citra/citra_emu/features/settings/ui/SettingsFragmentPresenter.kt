@@ -89,14 +89,14 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
         val sl = ArrayList<SettingsItem>()
         if (menuTag == null) {
             return
-        }
-        when (menuTag) {
+        }        when (menuTag) {
             SettingsFile.FILE_NAME_CONFIG -> addConfigSettings(sl)
             Settings.SECTION_CORE -> addGeneralSettings(sl)
             Settings.SECTION_SYSTEM -> addSystemSettings(sl)
             Settings.SECTION_CAMERA -> addCameraSettings(sl)
             Settings.SECTION_CONTROLS -> addControlsSettings(sl)
             Settings.SECTION_RENDERER -> addGraphicsSettings(sl)
+            Settings.SECTION_PERFORMANCE -> addPerformanceSettings(sl)
             Settings.SECTION_LAYOUT -> addLayoutSettings(sl)
             Settings.SECTION_AUDIO -> addAudioSettings(sl)
             Settings.SECTION_DEBUG -> addDebugSettings(sl)
@@ -164,13 +164,20 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.drawable.ic_controls_settings,
                     Settings.SECTION_CONTROLS
                 )
-            )
-            add(
+            )            add(
                 SubmenuSetting(
                     R.string.preferences_graphics,
                     0,
                     R.drawable.ic_graphics,
                     Settings.SECTION_RENDERER
+                )
+            )
+            add(
+                SubmenuSetting(
+                    R.string.preferences_performance,
+                    0,
+                    R.drawable.ic_speed,
+                    Settings.SECTION_PERFORMANCE
                 )
             )
             add(
@@ -1744,6 +1751,92 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     blackBackgrounds,
                     R.string.use_black_backgrounds,
                     R.string.use_black_backgrounds_description
+                )
+            )        }
+    }
+
+    private fun addPerformanceSettings(sl: ArrayList<SettingsItem>) {
+        settingsActivity.setToolbarTitle(settingsActivity.getString(R.string.preferences_performance))
+        sl.apply {
+            add(HeaderSetting(R.string.performance_auto_optimization))
+
+            add(
+                SwitchSetting(
+                    BooleanSetting.PERFORMANCE_AUTO_ADJUST,
+                    R.string.performance_auto_adjust,
+                    R.string.performance_auto_adjust_description,
+                    BooleanSetting.PERFORMANCE_AUTO_ADJUST.key,
+                    BooleanSetting.PERFORMANCE_AUTO_ADJUST.defaultValue
+                )
+            )
+
+            add(
+                SwitchSetting(
+                    BooleanSetting.PERFORMANCE_BATTERY_OPTIMIZATION,
+                    R.string.performance_battery_optimization,
+                    R.string.performance_battery_optimization_description,
+                    BooleanSetting.PERFORMANCE_BATTERY_OPTIMIZATION.key,
+                    BooleanSetting.PERFORMANCE_BATTERY_OPTIMIZATION.defaultValue
+                )
+            )
+
+            add(
+                SwitchSetting(
+                    BooleanSetting.PERFORMANCE_THERMAL_MANAGEMENT,
+                    R.string.performance_thermal_management,
+                    R.string.performance_thermal_management_description,
+                    BooleanSetting.PERFORMANCE_THERMAL_MANAGEMENT.key,
+                    BooleanSetting.PERFORMANCE_THERMAL_MANAGEMENT.defaultValue
+                )
+            )
+
+            add(HeaderSetting(R.string.performance_manual_settings))
+
+            add(
+                SingleChoiceSetting(
+                    IntSetting.JIT_OPTIMIZATION_LEVEL,
+                    R.string.jit_optimization_level,
+                    R.string.jit_optimization_level_description,
+                    R.array.jitOptimizationLevels,
+                    R.array.jitOptimizationLevelValues,
+                    IntSetting.JIT_OPTIMIZATION_LEVEL.key,
+                    IntSetting.JIT_OPTIMIZATION_LEVEL.defaultValue
+                )
+            )
+
+            add(
+                SingleChoiceSetting(
+                    IntSetting.AUDIO_LATENCY_MODE,
+                    R.string.audio_latency_mode,
+                    R.string.audio_latency_mode_description,
+                    R.array.audioLatencyModes,
+                    R.array.audioLatencyModeValues,
+                    IntSetting.AUDIO_LATENCY_MODE.key,
+                    IntSetting.AUDIO_LATENCY_MODE.defaultValue
+                )
+            )
+
+            add(
+                SingleChoiceSetting(
+                    IntSetting.MEMORY_OPTIMIZATION_LEVEL,
+                    R.string.memory_optimization_level,
+                    R.string.memory_optimization_level_description,
+                    R.array.memoryOptimizationLevels,
+                    R.array.memoryOptimizationLevelValues,
+                    IntSetting.MEMORY_OPTIMIZATION_LEVEL.key,
+                    IntSetting.MEMORY_OPTIMIZATION_LEVEL.defaultValue
+                )
+            )
+
+            add(
+                SingleChoiceSetting(
+                    IntSetting.ANISOTROPIC_FILTERING_LEVEL,
+                    R.string.anisotropic_filtering_level,
+                    R.string.anisotropic_filtering_level_description,
+                    R.array.anisotropicFilteringLevels,
+                    R.array.anisotropicFilteringLevelValues,
+                    IntSetting.ANISOTROPIC_FILTERING_LEVEL.key,
+                    IntSetting.ANISOTROPIC_FILTERING_LEVEL.defaultValue
                 )
             )
         }

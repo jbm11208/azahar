@@ -616,8 +616,60 @@
         <item>2</item>
         <item>0</item>
         <item>8</item>
+        <item>1</item>        <item>9</item>
+    </integer-array>
+
+    <!-- Performance Settings Arrays -->
+    <string-array name="jitOptimizationLevels">
+        <item>Off</item>
+        <item>Basic</item>
+        <item>Advanced</item>
+    </string-array>
+
+    <integer-array name="jitOptimizationLevelValues">
+        <item>0</item>
         <item>1</item>
-        <item>9</item>
+        <item>2</item>
+    </integer-array>
+
+    <string-array name="audioLatencyModes">
+        <item>Low Latency</item>
+        <item>Balanced</item>
+        <item>High Latency</item>
+    </string-array>
+
+    <integer-array name="audioLatencyModeValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
+    <string-array name="memoryOptimizationLevels">
+        <item>None</item>
+        <item>Basic</item>
+        <item>Aggressive</item>
+    </string-array>
+
+    <integer-array name="memoryOptimizationLevelValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
+    <string-array name="anisotropicFilteringLevels">
+        <item>Off</item>
+        <item>2x</item>
+        <item>4x</item>
+        <item>8x</item>
+        <item>16x</item>
+    </string-array>
+
+    <integer-array name="anisotropicFilteringLevelValues">
+        <item>0</item>
+        <item>2</item>
+        <item>4</item>
+        <item>8</item>
+        <item>16</item>
     </integer-array>
 
 </resources>

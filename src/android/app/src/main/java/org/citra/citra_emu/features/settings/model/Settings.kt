@@ -111,6 +111,7 @@ class Settings {
         const val SECTION_THEME = "Theme"
         const val SECTION_CUSTOM_LANDSCAPE = "Custom Landscape Layout"
         const val SECTION_CUSTOM_PORTRAIT = "Custom Portrait Layout"
+        const val SECTION_PERFORMANCE = "Performance"
         const val SECTION_PERFORMANCE_OVERLAY = "Performance Overlay"
 
         const val KEY_BUTTON_A = "button_a"
@@ -226,9 +227,7 @@ class Settings {
         const val PREF_SHOW_HOME_APPS = "ShowHomeApps"
         const val PREF_STATIC_THEME_COLOR = "StaticThemeColor"
 
-        private val configFileSectionsMap: MutableMap<String, List<String>> = HashMap()
-
-        init {
+        private val configFileSectionsMap: MutableMap<String, List<String>> = HashMap()        init {
             configFileSectionsMap[SettingsFile.FILE_NAME_CONFIG] =
                 listOf(
                     SECTION_CORE,
@@ -239,7 +238,8 @@ class Settings {
                     SECTION_LAYOUT,
                     SECTION_UTILITY,
                     SECTION_AUDIO,
-                    SECTION_DEBUG
+                    SECTION_DEBUG,
+                    SECTION_PERFORMANCE
                 )
         }
     }

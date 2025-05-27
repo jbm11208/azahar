@@ -80,6 +80,7 @@ import org.citra.citra_emu.utils.EmulationLifecycleUtil
 import org.citra.citra_emu.utils.Log
 import org.citra.citra_emu.utils.ViewUtils
 import org.citra.citra_emu.viewmodel.EmulationViewModel
+import org.citra.citra_emu.performance.AndroidPerformanceManager
 
 class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.FrameCallback {
     private val preferences: SharedPreferences
@@ -87,6 +88,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
 
     private lateinit var emulationState: EmulationState
     private var perfStatsUpdater: Runnable? = null
+    private lateinit var performanceManager: AndroidPerformanceManager
 
     private lateinit var emulationActivity: EmulationActivity
 
@@ -156,6 +158,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
         emulationState = EmulationState(game.path)
         emulationActivity = requireActivity() as EmulationActivity
         screenAdjustmentUtil = ScreenAdjustmentUtil(requireContext(), requireActivity().windowManager, settingsViewModel.settings)
+        // Initialize performance manager
+        performanceManager = AndroidPerformanceManager(requireContext())
+
         EmulationLifecycleUtil.addShutdownHook(hook = { emulationState.stop() })
         EmulationLifecycleUtil.addPauseResumeHook(hook = { togglePause() })
     }
@@ -464,6 +469,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
     override fun onResume() {
         super.onResume()
         Choreographer.getInstance().postFrameCallback(this)
+        // Start performance monitoring when emulation resumes
+        performanceManager.startPerformanceMonitoring()
+
         if (NativeLibrary.isRunning()) {
             NativeLibrary.unPauseEmulation()
 
@@ -493,6 +501,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback, Choreographer.Fram
         if (NativeLibrary.isRunning()) {
             emulationState.pause()
         }
+        // Stop performance monitoring when emulation pauses
+        performanceManager.stopPerformanceMonitoring()
         Choreographer.getInstance().removeFrameCallback(this)
         super.onPause()
     }

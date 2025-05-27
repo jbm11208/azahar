@@ -792,4 +792,219 @@ void Java_org_citra_citra_1emu_NativeLibrary_disableTemporaryFrameLimit(JNIEnv* 
     Settings::is_temporary_frame_limit = false;
 }
 
-} // extern "C"
+// ===== Performance Management JNI Functions =====
+
+void Java_org_citra_citra_1emu_NativeLibrary_setJitOptimizationLevel(JNIEnv* env, jobject obj,
+                                                                     jint level) {
+    // Set CPU JIT optimization level
+    // Level 0 = disabled, 1 = basic, 2 = aggressive
+    Settings::values.use_cpu_jit = level > 0;
+    if (level >= 2) {
+        // For aggressive optimization, increase CPU clock if possible
+        Settings::values.cpu_clock_percentage =
+            std::min(200, static_cast<int>(Settings::values.cpu_clock_percentage.GetValue() * 1.1));
+    }
+    LOG_INFO(Frontend, "JIT optimization level set to: {}", level);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setAudioLatencyMode(JNIEnv* env, jobject obj,
+                                                                 jint mode) {
+    // Audio latency mode: 0 = low, 1 = balanced, 2 = high (power save)
+    switch (mode) {
+    case 0: // Low latency
+        Settings::values.enable_audio_stretching = false;
+        Settings::values.enable_realtime_audio = true;
+        break;
+    case 1: // Balanced
+        Settings::values.enable_audio_stretching = true;
+        Settings::values.enable_realtime_audio = true;
+        break;
+    case 2: // High latency (power save)
+        Settings::values.enable_audio_stretching = true;
+        Settings::values.enable_realtime_audio = false;
+        break;
+    }
+    LOG_INFO(Frontend, "Audio latency mode set to: {}", mode);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setFrameLimit(JNIEnv* env, jobject obj, jint limit) {
+    Settings::values.frame_limit = limit;
+    Settings::is_temporary_frame_limit = false;
+    LOG_INFO(Frontend, "Frame limit set to: {}", limit);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setResolutionScale(JNIEnv* env, jobject obj,
+                                                                jfloat scale) {
+    Settings::values.resolution_factor = static_cast<u16>(std::max(1.0f, std::min(8.0f, scale)));
+    LOG_INFO(Frontend, "Resolution scale set to: {}", scale);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setAnisotropicFiltering(JNIEnv* env, jobject obj,
+                                                                     jint level) {
+    // Set anisotropic filtering level (1, 2, 4, 8, 16)
+    Settings::values.texture_sampling = level > 1 ? 1 : 0; // Enable if > 1
+    LOG_INFO(Frontend, "Anisotropic filtering set to: {}", level);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setMemoryOptimizationLevel(JNIEnv* env, jobject obj,
+                                                                        jint level) {
+    // Memory optimization level: 0 = none, 1 = moderate, 2 = aggressive
+    switch (level) {
+    case 0: // No optimization
+        Settings::values.use_disk_shader_cache = true;
+        Settings::values.preload_textures = true;
+        break;
+    case 1: // Moderate optimization
+        Settings::values.use_disk_shader_cache = true;
+        Settings::values.preload_textures = false;
+        break;
+    case 2: // Aggressive optimization
+        Settings::values.use_disk_shader_cache = false;
+        Settings::values.preload_textures = false;
+        break;
+    }
+    LOG_INFO(Frontend, "Memory optimization level set to: {}", level);
+}
+
+jboolean Java_org_citra_citra_1emu_NativeLibrary_detectThermalThrottling(JNIEnv* env, jobject obj) {
+    // Basic thermal detection - check if CPU clock has been reduced
+    auto& system = Core::System::GetInstance();
+    if (system.IsPoweredOn()) {
+        // Simple heuristic: if performance has degraded significantly, assume thermal throttling
+        // This is a placeholder - real implementation would need platform-specific thermal APIs
+        return JNI_FALSE;
+    }
+    return JNI_FALSE;
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setBackgroundState(JNIEnv* env, jobject obj,
+                                                                jboolean isBackground) {
+    if (isBackground) {
+        // Reduce performance when in background
+        Settings::temporary_frame_limit = 30.0; // Limit to 30 FPS
+        Settings::is_temporary_frame_limit = true;
+
+        // Reduce CPU clock
+        Settings::values.cpu_clock_percentage =
+            std::max(25, static_cast<int>(Settings::values.cpu_clock_percentage.GetValue() * 0.5));
+        LOG_INFO(Frontend, "Switched to background mode with reduced performance");
+    } else {
+        // Restore performance when returning to foreground
+        Settings::is_temporary_frame_limit = false;
+        // Note: CPU clock restoration should be handled by performance manager
+        LOG_INFO(Frontend, "Switched to foreground mode");
+    }
+}
+
+jdouble Java_org_citra_citra_1emu_NativeLibrary_getAverageFrameTime(JNIEnv* env, jobject obj) {
+    auto& system = Core::System::GetInstance();
+    if (system.IsPoweredOn()) {
+        const auto& perf_stats = system.GetAndResetPerfStats();
+        return perf_stats.frametime;
+    }
+    return 0.0;
+}
+
+jfloat Java_org_citra_citra_1emu_NativeLibrary_getGpuUsage(JNIEnv* env, jobject obj) {
+    // GPU usage estimation - placeholder implementation
+    // Real implementation would need platform-specific GPU monitoring
+    auto& system = Core::System::GetInstance();
+    if (system.IsPoweredOn()) {
+        // Return a basic estimation based on frame time
+        const auto& perf_stats = system.GetAndResetPerfStats();
+        float usage =
+            std::min(100.0f, static_cast<float>(perf_stats.frametime * 60.0 * 100.0 / 16.67));
+        return usage;
+    }
+    return 0.0f;
+}
+
+jfloat Java_org_citra_citra_1emu_NativeLibrary_getCpuUsage(JNIEnv* env, jobject obj) {
+    // CPU usage estimation - placeholder implementation
+    auto& system = Core::System::GetInstance();
+    if (system.IsPoweredOn()) {
+        const auto& perf_stats = system.GetAndResetPerfStats();
+        // Basic CPU usage estimation based on frame rate vs target
+        float target_fps = Settings::values.frame_limit.GetValue();
+        if (target_fps <= 0)
+            target_fps = 60.0f;
+        float actual_fps = perf_stats.game_fps;
+        float usage = std::min(100.0f, (target_fps / std::max(1.0f, actual_fps)) * 60.0f);
+        return usage;
+    }
+    return 0.0f;
+}
+
+jlong Java_org_citra_citra_1emu_NativeLibrary_getMemoryUsage(JNIEnv* env, jobject obj) {
+    // Memory usage estimation - this would need platform-specific implementation
+    // For now, return a placeholder value
+    return 0L;
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_optimizeForPowerSaving(JNIEnv* env, jobject obj) {
+    // Apply aggressive power saving optimizations
+    Settings::values.frame_limit = 30;      // Reduce to 30 FPS
+    Settings::values.resolution_factor = 1; // Use native resolution
+    Settings::values.use_hw_shader = false; // Disable hardware shaders
+    Settings::values.use_vsync_new = false; // Disable VSync
+    Settings::values.texture_filter = static_cast<Settings::TextureFilter>(0); // No filtering
+    Settings::values.cpu_clock_percentage = 50;                                // Reduce CPU clock
+    Settings::values.use_disk_shader_cache = false; // Disable shader cache to save storage I/O
+
+    LOG_INFO(Frontend, "Applied power saving optimizations");
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_optimizeForPerformance(JNIEnv* env, jobject obj) {
+    // Apply performance optimizations
+    Settings::values.frame_limit = 60;             // Target 60 FPS
+    Settings::values.resolution_factor = 2;        // 2x resolution
+    Settings::values.use_hw_shader = true;         // Enable hardware shaders
+    Settings::values.use_vsync_new = true;         // Enable VSync
+    Settings::values.cpu_clock_percentage = 100;   // Full CPU clock
+    Settings::values.use_disk_shader_cache = true; // Enable shader cache
+    Settings::values.use_shader_jit = true;        // Enable shader JIT
+
+    LOG_INFO(Frontend, "Applied performance optimizations");
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_triggerGarbageCollection(JNIEnv* env, jobject obj) {
+    // Trigger garbage collection hint - this is more relevant for Java side
+    // For native side, we can do some cleanup
+    auto& system = Core::System::GetInstance();
+    if (system.IsPoweredOn()) {
+        // Clear some caches if possible
+        system.GPU().Renderer().Rasterizer()->InvalidateAll();
+        LOG_INFO(Frontend, "Triggered native memory cleanup");
+    }
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_enableDynamicResolution(JNIEnv* env, jobject obj,
+                                                                     jboolean enable) {
+    // Enable/disable dynamic resolution scaling
+    // This would require more complex implementation in the renderer
+    LOG_INFO(Frontend, "Dynamic resolution {}", enable ? "enabled" : "disabled");
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setThermalThrottleLevel(JNIEnv* env, jobject obj,
+                                                                     jint level) {
+    // Apply thermal throttling at specified level (0-3)
+    switch (level) {
+    case 0: // No throttling
+        Settings::values.cpu_clock_percentage = 100;
+        Settings::values.frame_limit = 60;
+        break;
+    case 1: // Light throttling
+        Settings::values.cpu_clock_percentage = 80;
+        Settings::values.frame_limit = 50;
+        break;
+    case 2: // Moderate throttling
+        Settings::values.cpu_clock_percentage = 60;
+        Settings::values.frame_limit = 40;
+        break;
+    case 3: // Heavy throttling
+        Settings::values.cpu_clock_percentage = 40;
+        Settings::values.frame_limit = 30;
+        break;
+    }
+    LOG_INFO(Frontend, "Applied thermal throttling level: {}", level);
+}

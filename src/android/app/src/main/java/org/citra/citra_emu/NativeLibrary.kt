@@ -671,6 +671,49 @@ object NativeLibrary {
             FileUtil.deleteDocument(path)
         }
 
+    /**
+     * Android Performance Management Functions
+     */
+
+    // JIT optimization level control (0 = none, 1 = balanced, 2 = aggressive)
+    external fun setJitOptimizationLevel(level: Int)
+    external fun getJitOptimizationLevel(): Int
+
+    // Audio latency modes (0 = low latency, 1 = balanced, 2 = high latency/low power, 3 = max power save)
+    external fun setAudioLatencyMode(mode: Int)
+    external fun getAudioLatencyMode(): Int
+
+    // Frame rate limiting
+    external fun setFrameLimit(limit: Int)
+    external fun getFrameLimit(): Int
+
+    // Dynamic resolution scaling (0.5f = 50%, 1.0f = 100%, 2.0f = 200%)
+    external fun setResolutionScale(scale: Float)
+    external fun getResolutionScale(): Float
+
+    // Anisotropic filtering level (1, 2, 4, 8, 16)
+    external fun setAnisotropicFiltering(level: Int)
+    external fun getAnisotropicFiltering(): Int
+
+    // Memory optimization level (0 = none, 1 = light, 2 = moderate, 3 = aggressive)
+    external fun setMemoryOptimizationLevel(level: Int)
+    external fun getMemoryOptimizationLevel(): Int
+
+    // Thermal throttling detection
+    external fun setThermalThrottling(enabled: Boolean)
+    external fun getThermalState(): Int
+
+    // Background state handling
+    external fun setBackgroundOptimizations(enabled: Boolean)
+    external fun pauseForBackground()
+    external fun resumeFromBackground()
+
+    // Performance metrics
+    external fun getAverageFrameTime(): Double
+    external fun getGpuUsage(): Float
+    external fun getCpuUsage(): Float
+    external fun getMemoryUsage(): Long
+
     enum class CoreError {
         ErrorSystemFiles,
         ErrorSavestate,
