@@ -86,7 +86,8 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
         if (!TextUtils.isEmpty(gameId)) {
             settingsActivity.setToolbarTitle("Application Settings: $gameId")
         }
-        val sl = ArrayList<SettingsItem>()        if (menuTag == null) {
+        val sl = ArrayList<SettingsItem>()
+        if (menuTag == null) {
             return
         }
 
