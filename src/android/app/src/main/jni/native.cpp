@@ -842,7 +842,12 @@ void Java_org_citra_citra_1emu_NativeLibrary_setResolutionScale(JNIEnv* env, job
 void Java_org_citra_citra_1emu_NativeLibrary_setAnisotropicFiltering(JNIEnv* env, jobject obj,
                                                                      jint level) {
     // Set anisotropic filtering level (1, 2, 4, 8, 16)
-    Settings::values.texture_sampling = level > 1 ? 1 : 0; // Enable if > 1
+    // For now, we map it to texture sampling mode
+    if (level > 1) {
+        Settings::values.texture_sampling.SetValue(Settings::TextureSampling::Linear);
+    } else {
+        Settings::values.texture_sampling.SetValue(Settings::TextureSampling::GameControlled);
+    }
     LOG_INFO(Frontend, "Anisotropic filtering set to: {}", level);
 }
 
@@ -973,7 +978,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_triggerGarbageCollection(JNIEnv* en
     auto& system = Core::System::GetInstance();
     if (system.IsPoweredOn()) {
         // Clear some caches if possible
-        system.GPU().Renderer().Rasterizer()->InvalidateAll();
+        system.GPU().Renderer().Rasterizer()->ClearAll(false);
         LOG_INFO(Frontend, "Triggered native memory cleanup");
     }
 }
@@ -1005,6 +1010,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_setThermalThrottleLevel(JNIEnv* env
         Settings::values.cpu_clock_percentage = 40;
         Settings::values.frame_limit = 30;
         break;
-    }
-    LOG_INFO(Frontend, "Applied thermal throttling level: {}", level);
+    }    LOG_INFO(Frontend, "Applied thermal throttling level: {}", level);
 }
+
+} // extern "C"
