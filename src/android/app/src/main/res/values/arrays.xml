@@ -662,14 +662,25 @@
         <item>4x</item>
         <item>8x</item>
         <item>16x</item>
-    </string-array>
-
-    <integer-array name="anisotropicFilteringLevelValues">
+    </string-array>    <integer-array name="anisotropicFilteringLevelValues">
         <item>0</item>
         <item>2</item>
         <item>4</item>
         <item>8</item>
         <item>16</item>
+    </integer-array>
+
+    <!-- Shader Cache Compression Levels -->
+    <string-array name="shaderCacheCompressionLevels">
+        <item>Light</item>
+        <item>Balanced</item>
+        <item>High</item>
+    </string-array>
+
+    <integer-array name="shaderCacheCompressionLevelValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
     </integer-array>
 
 </resources>

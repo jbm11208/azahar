@@ -881,8 +881,20 @@
     <string name="audio_latency_mode">Audio Latency Mode</string>
     <string name="audio_latency_mode_description">Balance between audio latency and performance</string>
     <string name="memory_optimization_level">Memory Optimization</string>
-    <string name="memory_optimization_level_description">Optimize memory usage for better performance</string>
-    <string name="anisotropic_filtering_level">Anisotropic Filtering</string>
+    <string name="memory_optimization_level_description">Optimize memory usage for better performance</string>    <string name="anisotropic_filtering_level">Anisotropic Filtering</string>
     <string name="anisotropic_filtering_level_description">Improve texture quality at a performance cost</string>
+
+    <!-- Shader Cache Settings -->
+    <string name="shader_cache_settings">Shader Cache Settings</string>
+    <string name="shader_cache_enabled">Enable Shader Cache</string>
+    <string name="shader_cache_enabled_description">Cache compiled shaders to improve loading times</string>
+    <string name="shader_cache_aggressive">Aggressive Caching</string>
+    <string name="shader_cache_aggressive_description">Precompile and cache more shaders for maximum performance</string>
+    <string name="shader_cache_conservative">Conservative Caching</string>
+    <string name="shader_cache_conservative_description">Use minimal caching to save storage space</string>
+    <string name="shader_cache_max_size">Maximum Cache Size</string>
+    <string name="shader_cache_max_size_description">Maximum size of shader cache in MB</string>
+    <string name="shader_cache_compression_level">Cache Compression</string>
+    <string name="shader_cache_compression_level_description">Compression level for cached shaders</string>
 
 </resources>

@@ -11,6 +11,7 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import org.citra.citra_emu.NativeLibrary
+import org.citra.citra_emu.performance.AndroidShaderCacheManager
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -35,11 +36,10 @@ class AndroidPerformanceManager(private val context: Context) {
         const val PERFORMANCE_LEVEL_BALANCED = 2
         const val PERFORMANCE_LEVEL_POWER_SAVE = 3
         const val PERFORMANCE_LEVEL_ULTRA_SAVE = 4
-    }
-
-    private val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+    }    private val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
     private val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+    private val shaderCacheManager = AndroidShaderCacheManager(context)
 
     private var performanceExecutor: ScheduledExecutorService? = null
     private var currentPerformanceLevel = PERFORMANCE_LEVEL_BALANCED
@@ -49,10 +49,11 @@ class AndroidPerformanceManager(private val context: Context) {
     // Performance metrics tracking
     private var lastFrameTime = 0L
     private var frameTimeHistory = mutableListOf<Long>()
-    private val maxHistorySize = 30
-
-    fun startPerformanceMonitoring() {
+    private val maxHistorySize = 30    fun startPerformanceMonitoring() {
         if (isMonitoring) return
+
+        // Initialize shader cache manager
+        shaderCacheManager.initialize()
 
         isMonitoring = true
         performanceExecutor = Executors.newSingleThreadScheduledExecutor()
@@ -67,12 +68,11 @@ class AndroidPerformanceManager(private val context: Context) {
         }, 0, MONITORING_INTERVAL_MS, TimeUnit.MILLISECONDS)
 
         Log.i(TAG, "Performance monitoring started")
-    }
-
-    fun stopPerformanceMonitoring() {
+    }    fun stopPerformanceMonitoring() {
         isMonitoring = false
         performanceExecutor?.shutdown()
         performanceExecutor = null
+        shaderCacheManager.shutdown()
         Log.i(TAG, "Performance monitoring stopped")
     }
 
@@ -88,14 +88,13 @@ class AndroidPerformanceManager(private val context: Context) {
             }
         }
         lastFrameTime = currentTime
-    }
-
-    private fun adjustPerformanceLevel() {
+    }    private fun adjustPerformanceLevel() {
         val newLevel = calculateOptimalPerformanceLevel()
 
         if (newLevel != currentPerformanceLevel) {
             Log.i(TAG, "Adjusting performance level from $currentPerformanceLevel to $newLevel")
             applyPerformanceLevel(newLevel)
+            shaderCacheManager.adaptToPerformanceLevel(newLevel)
             currentPerformanceLevel = newLevel
         }
     }
@@ -245,13 +244,12 @@ class AndroidPerformanceManager(private val context: Context) {
         } else {
             0 // Unknown thermal state for older devices
         }
-    }
-
-    fun getPerformanceStats(): Map<String, Any> {
+    }    fun getPerformanceStats(): Map<String, Any> {
         val batteryLevel = getBatteryLevel()
         val isCharging = isDeviceCharging()
         val memoryInfo = getMemoryInfo()
         val thermalState = getThermalState()
+        val shaderCacheStats = shaderCacheManager.getCacheStatistics()
 
         return mapOf(
             "currentPerformanceLevel" to currentPerformanceLevel,
@@ -263,15 +261,28 @@ class AndroidPerformanceManager(private val context: Context) {
             "isPowerSaveMode" to powerManager.isPowerSaveMode,
             "averageFrameTime" to if (frameTimeHistory.isNotEmpty()) {
                 frameTimeHistory.average()
-            } else 0.0
+            } else 0.0,
+            "shaderCache" to shaderCacheStats
         )
-    }
-
-    fun forcePerformanceLevel(level: Int) {
+    }    fun forcePerformanceLevel(level: Int) {
         if (level in PERFORMANCE_LEVEL_MAXIMUM..PERFORMANCE_LEVEL_ULTRA_SAVE) {
             applyPerformanceLevel(level)
+            shaderCacheManager.adaptToPerformanceLevel(level)
             currentPerformanceLevel = level
             Log.i(TAG, "Forced performance level to $level")
         }
+    }
+
+    // Shader cache management functions
+    fun clearShaderCache() {
+        shaderCacheManager.clearCache()
+    }
+
+    fun precompileCommonShaders() {
+        shaderCacheManager.precompileCommonShaders()
+    }
+
+    fun getShaderCacheStatistics(): Map<String, Any> {
+        return shaderCacheManager.getCacheStatistics()
     }
 }

@@ -68,13 +68,15 @@ enum class IntSetting(
     ORIENTATION_OPTION("screen_orientation", Settings.SECTION_LAYOUT, 2),
     DISABLE_RIGHT_EYE_RENDER("disable_right_eye_render", Settings.SECTION_RENDERER, 0),    TURBO_LIMIT("turbo_limit", Settings.SECTION_CORE, 200),
     PERFORMANCE_OVERLAY_POSITION("performance_overlay_position", Settings.SECTION_LAYOUT, 0),
-    ASPECT_RATIO("aspect_ratio", Settings.SECTION_LAYOUT, 0),
-
-    // Performance settings
+    ASPECT_RATIO("aspect_ratio", Settings.SECTION_LAYOUT, 0),    // Performance settings
     JIT_OPTIMIZATION_LEVEL("jit_optimization_level", Settings.SECTION_PERFORMANCE, 1),
     AUDIO_LATENCY_MODE("audio_latency_mode", Settings.SECTION_PERFORMANCE, 1),
     MEMORY_OPTIMIZATION_LEVEL("memory_optimization_level", Settings.SECTION_PERFORMANCE, 1),
-    ANISOTROPIC_FILTERING_LEVEL("anisotropic_filtering_level", Settings.SECTION_PERFORMANCE, 4);
+    ANISOTROPIC_FILTERING_LEVEL("anisotropic_filtering_level", Settings.SECTION_PERFORMANCE, 4),
+
+    // Shader cache settings
+    SHADER_CACHE_MAX_SIZE_MB("shader_cache_max_size_mb", Settings.SECTION_PERFORMANCE, 256),
+    SHADER_CACHE_COMPRESSION_LEVEL("shader_cache_compression_level", Settings.SECTION_PERFORMANCE, 2);
 
     override var int: Int = defaultValue
 

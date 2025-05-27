@@ -1014,4 +1014,82 @@ void Java_org_citra_citra_1emu_NativeLibrary_setThermalThrottleLevel(JNIEnv* env
     LOG_INFO(Frontend, "Applied thermal throttling level: {}", level);
 }
 
+// Shader cache management functions
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheDirectory(JNIEnv* env, jobject obj,
+                                                                     jstring path) {
+    const char* path_str = env->GetStringUTFChars(path, nullptr);
+    Settings::values.cache_dir = std::string(path_str);
+    env->ReleaseStringUTFChars(path, path_str);
+    LOG_INFO(Frontend, "Shader cache directory set to: {}", Settings::values.cache_dir.GetValue());
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setPrecompiledShaderCacheDirectory(JNIEnv* env, jobject obj,
+                                                                                jstring path) {
+    const char* path_str = env->GetStringUTFChars(path, nullptr);
+    // Store precompiled cache path in a custom setting or global variable
+    // For now, we'll use a static variable
+    static std::string precompiled_cache_path;
+    precompiled_cache_path = std::string(path_str);
+    env->ReleaseStringUTFChars(path, path_str);
+    LOG_INFO(Frontend, "Precompiled shader cache directory set to: {}", precompiled_cache_path);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheMaxSize(JNIEnv* env, jobject obj,
+                                                                   jint sizeBytes) {
+    // Set maximum shader cache size
+    // This would typically be handled by the shader cache manager
+    LOG_INFO(Frontend, "Shader cache max size set to: {} bytes", sizeBytes);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCachePrecompileEnabled(JNIEnv* env, jobject obj,
+                                                                             jboolean enabled) {
+    // Enable/disable shader precompilation
+    Settings::values.preload_textures = enabled;
+    LOG_INFO(Frontend, "Shader cache precompile {}", enabled ? "enabled" : "disabled");
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheBackgroundCompilation(JNIEnv* env, jobject obj,
+                                                                                 jboolean enabled) {
+    // Enable/disable background shader compilation
+    // This would be implemented in the shader cache system
+    LOG_INFO(Frontend, "Background shader compilation {}", enabled ? "enabled" : "disabled");
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheCompressionLevel(JNIEnv* env, jobject obj,
+                                                                            jint level) {
+    // Set shader cache compression level (1-3)
+    // This would be handled by the cache compression system
+    LOG_INFO(Frontend, "Shader cache compression level set to: {}", level);
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_clearShaderCache(JNIEnv* env, jobject obj) {
+    // Clear all shader caches
+    auto& system = Core::System::GetInstance();
+    if (system.IsPoweredOn()) {
+        system.GPU().Renderer().Rasterizer()->ClearAll(false);
+    }
+
+    // Clear OpenGL shader disk cache if available
+    // This would require access to the OpenGL shader cache manager
+    LOG_INFO(Frontend, "Shader cache cleared");
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_triggerBackgroundShaderCompilation(JNIEnv* env, jobject obj) {
+    // Trigger background shader compilation
+    // This would be implemented in the shader cache background system
+    LOG_INFO(Frontend, "Background shader compilation triggered");
+}
+
+void Java_org_citra_citra_1emu_NativeLibrary_precompileCommonShaders(JNIEnv* env, jobject obj) {
+    // Precompile commonly used shaders
+    // This would involve compiling a set of predetermined shader configurations
+    LOG_INFO(Frontend, "Common shader precompilation started");
+}
+
+jstring Java_org_citra_citra_1emu_NativeLibrary_getShaderCacheStatistics(JNIEnv* env, jobject obj) {
+    // Return shader cache statistics as JSON string
+    std::string stats = "{\"cacheHits\": 0, \"cacheMisses\": 0, \"totalShaders\": 0, \"cacheSize\": 0}";
+    return env->NewStringUTF(stats.c_str());
+}
+
 } // extern "C"

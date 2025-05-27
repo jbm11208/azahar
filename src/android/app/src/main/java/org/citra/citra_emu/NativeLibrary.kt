@@ -701,12 +701,22 @@ object NativeLibrary {
 
     // Thermal throttling detection
     external fun setThermalThrottling(enabled: Boolean)
-    external fun getThermalState(): Int
-
-    // Background state handling
+    external fun getThermalState(): Int    // Background state handling
     external fun setBackgroundOptimizations(enabled: Boolean)
     external fun pauseForBackground()
     external fun resumeFromBackground()
+
+    // Shader cache management
+    external fun setShaderCacheDirectory(path: String)
+    external fun setPrecompiledShaderCacheDirectory(path: String)
+    external fun setShaderCacheMaxSize(sizeBytes: Int)
+    external fun setShaderCachePrecompileEnabled(enabled: Boolean)
+    external fun setShaderCacheBackgroundCompilation(enabled: Boolean)
+    external fun setShaderCacheCompressionLevel(level: Int)
+    external fun clearShaderCache()
+    external fun triggerBackgroundShaderCompilation()
+    external fun precompileCommonShaders()
+    external fun getShaderCacheStatistics(): String
 
     // Performance metrics
     external fun getAverageFrameTime(): Double

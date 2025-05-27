@@ -1828,9 +1828,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     IntSetting.MEMORY_OPTIMIZATION_LEVEL.key,
                     IntSetting.MEMORY_OPTIMIZATION_LEVEL.defaultValue
                 )
-            )
-
-            add(
+            )            add(
                 SingleChoiceSetting(
                     IntSetting.ANISOTROPIC_FILTERING_LEVEL,
                     R.string.anisotropic_filtering_level,
@@ -1839,6 +1837,63 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.array.anisotropicFilteringLevelValues,
                     IntSetting.ANISOTROPIC_FILTERING_LEVEL.key,
                     IntSetting.ANISOTROPIC_FILTERING_LEVEL.defaultValue
+                )
+            )
+
+            add(HeaderSetting(R.string.shader_cache_settings))
+
+            add(
+                SwitchSetting(
+                    BooleanSetting.SHADER_CACHE_ENABLED,
+                    R.string.shader_cache_enabled,
+                    R.string.shader_cache_enabled_description,
+                    BooleanSetting.SHADER_CACHE_ENABLED.key,
+                    BooleanSetting.SHADER_CACHE_ENABLED.defaultValue
+                )
+            )
+
+            add(
+                SwitchSetting(
+                    BooleanSetting.SHADER_CACHE_AGGRESSIVE,
+                    R.string.shader_cache_aggressive,
+                    R.string.shader_cache_aggressive_description,
+                    BooleanSetting.SHADER_CACHE_AGGRESSIVE.key,
+                    BooleanSetting.SHADER_CACHE_AGGRESSIVE.defaultValue
+                )
+            )
+
+            add(
+                SwitchSetting(
+                    BooleanSetting.SHADER_CACHE_CONSERVATIVE,
+                    R.string.shader_cache_conservative,
+                    R.string.shader_cache_conservative_description,
+                    BooleanSetting.SHADER_CACHE_CONSERVATIVE.key,
+                    BooleanSetting.SHADER_CACHE_CONSERVATIVE.defaultValue
+                )
+            )
+
+            add(
+                SliderSetting(
+                    IntSetting.SHADER_CACHE_MAX_SIZE_MB,
+                    R.string.shader_cache_max_size,
+                    R.string.shader_cache_max_size_description,
+                    64,
+                    512,
+                    "MB",
+                    IntSetting.SHADER_CACHE_MAX_SIZE_MB.key,
+                    IntSetting.SHADER_CACHE_MAX_SIZE_MB.defaultValue
+                )
+            )
+
+            add(
+                SingleChoiceSetting(
+                    IntSetting.SHADER_CACHE_COMPRESSION_LEVEL,
+                    R.string.shader_cache_compression_level,
+                    R.string.shader_cache_compression_level_description,
+                    R.array.shaderCacheCompressionLevels,
+                    R.array.shaderCacheCompressionLevelValues,
+                    IntSetting.SHADER_CACHE_COMPRESSION_LEVEL.key,
+                    IntSetting.SHADER_CACHE_COMPRESSION_LEVEL.defaultValue
                 )
             )
         }
