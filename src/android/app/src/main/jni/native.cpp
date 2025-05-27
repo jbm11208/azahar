@@ -1010,7 +1010,8 @@ void Java_org_citra_citra_1emu_NativeLibrary_setThermalThrottleLevel(JNIEnv* env
         Settings::values.cpu_clock_percentage = 40;
         Settings::values.frame_limit = 30;
         break;
-    }    LOG_INFO(Frontend, "Applied thermal throttling level: {}", level);
+    }
+    LOG_INFO(Frontend, "Applied thermal throttling level: {}", level);
 }
 
 } // extern "C"

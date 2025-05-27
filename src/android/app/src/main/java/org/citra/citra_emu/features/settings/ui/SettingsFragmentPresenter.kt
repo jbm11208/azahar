@@ -86,10 +86,11 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
         if (!TextUtils.isEmpty(gameId)) {
             settingsActivity.setToolbarTitle("Application Settings: $gameId")
         }
-        val sl = ArrayList<SettingsItem>()
-        if (menuTag == null) {
+        val sl = ArrayList<SettingsItem>()        if (menuTag == null) {
             return
-        }        when (menuTag) {
+        }
+
+        when (menuTag) {
             SettingsFile.FILE_NAME_CONFIG -> addConfigSettings(sl)
             Settings.SECTION_CORE -> addGeneralSettings(sl)
             Settings.SECTION_SYSTEM -> addSystemSettings(sl)
@@ -162,9 +163,9 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     R.string.preferences_controls,
                     0,
                     R.drawable.ic_controls_settings,
-                    Settings.SECTION_CONTROLS
-                )
-            )            add(
+                    Settings.SECTION_CONTROLS                )
+            )
+            add(
                 SubmenuSetting(
                     R.string.preferences_graphics,
                     0,

@@ -227,7 +227,9 @@ class Settings {
         const val PREF_SHOW_HOME_APPS = "ShowHomeApps"
         const val PREF_STATIC_THEME_COLOR = "StaticThemeColor"
 
-        private val configFileSectionsMap: MutableMap<String, List<String>> = HashMap()        init {
+        private val configFileSectionsMap: MutableMap<String, List<String>> = HashMap()
+
+        init {
             configFileSectionsMap[SettingsFile.FILE_NAME_CONFIG] =
                 listOf(
                     SECTION_CORE,
