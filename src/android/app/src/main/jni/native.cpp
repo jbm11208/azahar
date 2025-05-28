@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <codecvt>
-#include <thread>
 #include <sstream>
+#include <thread>
 #include <dlfcn.h>
 
 #include <android/api-level.h>
@@ -53,7 +53,7 @@
 #include "video_core/renderer_opengl/gl_shader_manager.h"
 #endif
 #ifdef ENABLE_VULKAN
-#include "video_core/renderer_vulkan/vk_pipeline_cache.h"
+// #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #endif
 #ifdef ENABLE_VULKAN
 #include "jni/emu_window/emu_window_vk.h"
@@ -1023,12 +1023,14 @@ void Java_org_citra_citra_1emu_NativeLibrary_setThermalThrottleLevel(JNIEnv* env
 // Shader cache management functions
 void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheDirectory(JNIEnv* env, jobject obj,
                                                                      jstring path) {
-    if (!path) return;
+    if (!path)
+        return;
 
     const char* path_str = env->GetStringUTFChars(path, nullptr);
     if (path_str) {
         // Set custom shader cache directory
-        // Both OpenGL and Vulkan cache systems use FileUtil::GetUserPath(FileUtil::UserPath::ShaderDir)
+        // Both OpenGL and Vulkan cache systems use
+        // FileUtil::GetUserPath(FileUtil::UserPath::ShaderDir)
         std::string shader_dir = std::string(path_str);
 
         // Update the shader directory path
@@ -1198,24 +1200,28 @@ jstring Java_org_citra_citra_1emu_NativeLibrary_getShaderCacheStatistics(JNIEnv*
 
         // Count OpenGL cache files and size
         if (FileUtil::Exists(opengl_cache_dir)) {
-            FileUtil::ForeachDirectoryEntry(nullptr, opengl_cache_dir, [&](u64*, const std::string&, const std::string& filename) {
-                if (!FileUtil::IsDirectory(opengl_cache_dir + "/" + filename)) {
-                    opengl_file_count++;
-                    opengl_cache_size += FileUtil::GetSize(opengl_cache_dir + "/" + filename);
-                }
-                return true;
-            });
+            FileUtil::ForeachDirectoryEntry(
+                nullptr, opengl_cache_dir,
+                [&](u64*, const std::string&, const std::string& filename) {
+                    if (!FileUtil::IsDirectory(opengl_cache_dir + "/" + filename)) {
+                        opengl_file_count++;
+                        opengl_cache_size += FileUtil::GetSize(opengl_cache_dir + "/" + filename);
+                    }
+                    return true;
+                });
         }
 
         // Count Vulkan cache files and size
         if (FileUtil::Exists(vulkan_cache_dir)) {
-            FileUtil::ForeachDirectoryEntry(nullptr, vulkan_cache_dir, [&](u64*, const std::string&, const std::string& filename) {
-                if (!FileUtil::IsDirectory(vulkan_cache_dir + "/" + filename)) {
-                    vulkan_file_count++;
-                    vulkan_cache_size += FileUtil::GetSize(vulkan_cache_dir + "/" + filename);
-                }
-                return true;
-            });
+            FileUtil::ForeachDirectoryEntry(
+                nullptr, vulkan_cache_dir,
+                [&](u64*, const std::string&, const std::string& filename) {
+                    if (!FileUtil::IsDirectory(vulkan_cache_dir + "/" + filename)) {
+                        vulkan_file_count++;
+                        vulkan_cache_size += FileUtil::GetSize(vulkan_cache_dir + "/" + filename);
+                    }
+                    return true;
+                });
         }
 
         const u64 total_cache_size = opengl_cache_size + vulkan_cache_size;
@@ -1227,7 +1233,8 @@ jstring Java_org_citra_citra_1emu_NativeLibrary_getShaderCacheStatistics(JNIEnv*
                    << "\"openglFiles\": " << opengl_file_count << ","
                    << "\"vulkanCacheSize\": " << vulkan_cache_size << ","
                    << "\"vulkanFiles\": " << vulkan_file_count << ","
-                   << "\"diskCacheEnabled\": " << (Settings::values.use_disk_shader_cache ? "true" : "false");
+                   << "\"diskCacheEnabled\": "
+                   << (Settings::values.use_disk_shader_cache ? "true" : "false");
 
     } catch (const std::exception& e) {
         LOG_ERROR(Frontend, "Failed to get shader cache statistics: {}", e.what());
