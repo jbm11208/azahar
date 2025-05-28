@@ -45,11 +45,12 @@ class AndroidPerformanceManager(private val context: Context) {
     private var currentPerformanceLevel = PERFORMANCE_LEVEL_BALANCED
     private var isMonitoring = false
     private var lastThermalState = -1
-
     // Performance metrics tracking
     private var lastFrameTime = 0L
     private var frameTimeHistory = mutableListOf<Long>()
-    private val maxHistorySize = 30    fun startPerformanceMonitoring() {
+    private val maxHistorySize = 30
+
+    fun startPerformanceMonitoring() {
         if (isMonitoring) return
 
         // Initialize shader cache manager

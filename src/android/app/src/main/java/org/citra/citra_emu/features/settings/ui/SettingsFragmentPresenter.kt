@@ -1828,7 +1828,9 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     IntSetting.MEMORY_OPTIMIZATION_LEVEL.key,
                     IntSetting.MEMORY_OPTIMIZATION_LEVEL.defaultValue
                 )
-            )            add(
+            )
+
+            add(
                 SingleChoiceSetting(
                     IntSetting.ANISOTROPIC_FILTERING_LEVEL,
                     R.string.anisotropic_filtering_level,
@@ -1870,9 +1872,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     BooleanSetting.SHADER_CACHE_CONSERVATIVE.key,
                     BooleanSetting.SHADER_CACHE_CONSERVATIVE.defaultValue
                 )
-            )
-
-            add(
+            )            add(
                 SliderSetting(
                     IntSetting.SHADER_CACHE_MAX_SIZE_MB,
                     R.string.shader_cache_max_size,
@@ -1881,7 +1881,7 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     512,
                     "MB",
                     IntSetting.SHADER_CACHE_MAX_SIZE_MB.key,
-                    IntSetting.SHADER_CACHE_MAX_SIZE_MB.defaultValue
+                    IntSetting.SHADER_CACHE_MAX_SIZE_MB.defaultValue.toFloat()
                 )
             )
 
