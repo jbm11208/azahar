@@ -358,4 +358,129 @@ class AndroidShaderCacheManager(private val context: Context) {
             }
         }
     }
+
+    // Additional methods for testing and API completeness
+    fun isInitialized(): Boolean = isInitialized
+
+    fun getMaxCacheSize(): Long = maxCacheSize
+
+    fun destroy() {
+        shutdown()
+    }
+
+    fun onMemoryPressure() {
+        if (!isInitialized) return
+
+        Log.i(TAG, "Memory pressure detected, optimizing shader cache")
+
+        // Reduce cache size temporarily
+        val reducedCacheSize = (maxCacheSize * 0.5).toLong()
+        NativeLibrary.setShaderCacheMaxSize((reducedCacheSize * 1024 * 1024).toInt())
+
+        // Clear some cache if needed
+        try {
+            val stats = NativeLibrary.getShaderCacheStatistics()
+            Log.d(TAG, "Cache stats during memory pressure: $stats")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get cache statistics during memory pressure", e)
+        }
+    }
+
+    fun optimizeForStorage() {
+        if (!isInitialized) return
+
+        try {
+            val availableStorage = getAvailableStorage()
+            if (availableStorage < CRITICAL_STORAGE_GB * 1024L * 1024L * 1024L) {
+                Log.w(TAG, "Critical storage space, applying aggressive cache optimization")
+                setCacheStrategy(CacheStrategy.CONSERVATIVE)
+
+                // Reduce cache size significantly
+                val criticalCacheSize = MIN_CACHE_SIZE / 2
+                NativeLibrary.setShaderCacheMaxSize((criticalCacheSize * 1024 * 1024).toInt())
+
+                // Clear some cache data
+                clearOldCacheFiles()
+            } else if (availableStorage < MIN_FREE_STORAGE_GB * 1024L * 1024L * 1024L) {
+                Log.i(TAG, "Low storage space, optimizing cache usage")
+                setCacheStrategy(CacheStrategy.CONSERVATIVE)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to optimize for storage", e)
+        }
+    }
+
+    fun isBackgroundMaintenanceActive(): Boolean {
+        return backgroundExecutor?.isShutdown?.not() ?: false
+    }
+
+    fun startBackgroundMaintenance() {
+        if (backgroundExecutor?.isShutdown != false) {
+            backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
+        }
+
+        backgroundExecutor?.scheduleWithFixedDelay({
+            performBackgroundMaintenance()
+        }, CACHE_CLEANUP_INTERVAL_MS, CACHE_CLEANUP_INTERVAL_MS, TimeUnit.MILLISECONDS)
+
+        Log.d(TAG, "Background maintenance started")
+    }
+
+    fun stopBackgroundMaintenance() {
+        backgroundExecutor?.shutdown()
+        Log.d(TAG, "Background maintenance stopped")
+    }
+
+    fun applySettings() {
+        if (!isInitialized) return
+
+        try {
+            // Apply shader cache settings from the settings system
+            val cacheEnabled = BooleanSetting.SHADER_CACHE_ENABLED.getBoolean()
+            val aggressiveCache = BooleanSetting.SHADER_CACHE_AGGRESSIVE.getBoolean()
+            val conservativeCache = BooleanSetting.SHADER_CACHE_CONSERVATIVE.getBoolean()
+            val maxSizeMB = IntSetting.SHADER_CACHE_MAX_SIZE_MB.getInt()
+            val compressionLevel = IntSetting.SHADER_CACHE_COMPRESSION_LEVEL.getInt()
+
+            // Apply cache strategy based on settings
+            val strategy = when {
+                !cacheEnabled -> CacheStrategy.DISABLED
+                aggressiveCache -> CacheStrategy.AGGRESSIVE
+                conservativeCache -> CacheStrategy.CONSERVATIVE
+                else -> CacheStrategy.BALANCED
+            }
+
+            setCacheStrategy(strategy)
+
+            if (cacheEnabled && maxSizeMB > 0) {
+                NativeLibrary.setShaderCacheMaxSize(maxSizeMB * 1024 * 1024)
+            }
+
+            NativeLibrary.setShaderCacheCompressionLevel(compressionLevel)
+
+            Log.i(TAG, "Applied shader cache settings - Strategy: $strategy, Max size: ${maxSizeMB}MB, Compression: $compressionLevel")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to apply shader cache settings", e)
+        }
+    }
+
+    private fun clearOldCacheFiles() {
+        try {
+            val cacheDir = cacheDirectory
+            if (cacheDir.exists()) {
+                val files = cacheDir.listFiles() ?: return
+                val now = System.currentTimeMillis()
+                val maxAge = 7 * 24 * 60 * 60 * 1000L // 7 days
+
+                files.filter { it.lastModified() < now - maxAge }
+                    .forEach { file ->
+                        if (file.delete()) {
+                            Log.d(TAG, "Deleted old cache file: ${file.name}")
+                        }
+                    }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to clear old cache files", e)
+        }
+    }
 }
