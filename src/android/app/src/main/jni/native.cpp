@@ -1018,12 +1018,15 @@ void Java_org_citra_citra_1emu_NativeLibrary_setThermalThrottleLevel(JNIEnv* env
 void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheDirectory(JNIEnv* env, jobject obj,
                                                                      jstring path) {
     const char* path_str = env->GetStringUTFChars(path, nullptr);
-    Settings::values.cache_dir = std::string(path_str);
+    // Store shader cache path in a static variable since Settings doesn't have cache_dir
+    static std::string shader_cache_path;
+    shader_cache_path = std::string(path_str);
     env->ReleaseStringUTFChars(path, path_str);
-    LOG_INFO(Frontend, "Shader cache directory set to: {}", Settings::values.cache_dir.GetValue());
+    LOG_INFO(Frontend, "Shader cache directory set to: {}", shader_cache_path);
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_setPrecompiledShaderCacheDirectory(JNIEnv* env, jobject obj,
+void Java_org_citra_citra_1emu_NativeLibrary_setPrecompiledShaderCacheDirectory(JNIEnv* env,
+                                                                                jobject obj,
                                                                                 jstring path) {
     const char* path_str = env->GetStringUTFChars(path, nullptr);
     // Store precompiled cache path in a custom setting or global variable
@@ -1041,21 +1044,24 @@ void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheMaxSize(JNIEnv* env, 
     LOG_INFO(Frontend, "Shader cache max size set to: {} bytes", sizeBytes);
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_setShaderCachePrecompileEnabled(JNIEnv* env, jobject obj,
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCachePrecompileEnabled(JNIEnv* env,
+                                                                             jobject obj,
                                                                              jboolean enabled) {
     // Enable/disable shader precompilation
     Settings::values.preload_textures = enabled;
     LOG_INFO(Frontend, "Shader cache precompile {}", enabled ? "enabled" : "disabled");
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheBackgroundCompilation(JNIEnv* env, jobject obj,
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheBackgroundCompilation(JNIEnv* env,
+                                                                                 jobject obj,
                                                                                  jboolean enabled) {
     // Enable/disable background shader compilation
     // This would be implemented in the shader cache system
     LOG_INFO(Frontend, "Background shader compilation {}", enabled ? "enabled" : "disabled");
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheCompressionLevel(JNIEnv* env, jobject obj,
+void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheCompressionLevel(JNIEnv* env,
+                                                                            jobject obj,
                                                                             jint level) {
     // Set shader cache compression level (1-3)
     // This would be handled by the cache compression system
@@ -1074,7 +1080,8 @@ void Java_org_citra_citra_1emu_NativeLibrary_clearShaderCache(JNIEnv* env, jobje
     LOG_INFO(Frontend, "Shader cache cleared");
 }
 
-void Java_org_citra_citra_1emu_NativeLibrary_triggerBackgroundShaderCompilation(JNIEnv* env, jobject obj) {
+void Java_org_citra_citra_1emu_NativeLibrary_triggerBackgroundShaderCompilation(JNIEnv* env,
+                                                                                jobject obj) {
     // Trigger background shader compilation
     // This would be implemented in the shader cache background system
     LOG_INFO(Frontend, "Background shader compilation triggered");
@@ -1088,7 +1095,8 @@ void Java_org_citra_citra_1emu_NativeLibrary_precompileCommonShaders(JNIEnv* env
 
 jstring Java_org_citra_citra_1emu_NativeLibrary_getShaderCacheStatistics(JNIEnv* env, jobject obj) {
     // Return shader cache statistics as JSON string
-    std::string stats = "{\"cacheHits\": 0, \"cacheMisses\": 0, \"totalShaders\": 0, \"cacheSize\": 0}";
+    std::string stats =
+        "{\"cacheHits\": 0, \"cacheMisses\": 0, \"totalShaders\": 0, \"cacheSize\": 0}";
     return env->NewStringUTF(stats.c_str());
 }
 
