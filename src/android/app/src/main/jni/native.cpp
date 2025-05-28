@@ -1034,7 +1034,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_setShaderCacheDirectory(JNIEnv* env
         std::string shader_dir = std::string(path_str);
 
         // Update the shader directory path
-        FileUtil::SetUserPath(FileUtil::UserPath::ShaderDir, shader_dir);
+        //        FileUtil::SetUserPath(FileUtil::UserPath::ShaderDir, shader_dir);
 
         LOG_INFO(Frontend, "Shader cache directory set to: {}", shader_dir);
         env->ReleaseStringUTFChars(path, path_str);
@@ -1162,7 +1162,7 @@ void Java_org_citra_citra_1emu_NativeLibrary_precompileCommonShaders(JNIEnv* env
     // This function would compile a set of the most frequently used shader configurations
     try {
         // Enable disk shader cache for precompilation
-        const bool original_cache_setting = Settings::values.use_disk_shader_cache;
+        bool original_cache_setting = Settings::values.use_disk_shader_cache;
         Settings::values.use_disk_shader_cache = true;
 
         // This is a simplified implementation. In practice, this would:
