@@ -13,6 +13,7 @@
 #include <core/hw/aes/key.h>
 #include <core/loader/smdh.h>
 #include <core/system_titles.h>
+#include "common/settings.h"
 
 #include <core/hle/service/cfg/cfg.h>
 #include "audio_core/dsp_interface.h"
@@ -1162,8 +1163,6 @@ void Java_org_citra_citra_1emu_NativeLibrary_precompileCommonShaders(JNIEnv* env
     // This function would compile a set of the most frequently used shader configurations
     try {
         // Enable disk shader cache for precompilation
-        bool original_cache_setting = Settings::values.use_disk_shader_cache;
-        Settings::values.use_disk_shader_cache = true;
 
         // This is a simplified implementation. In practice, this would:
         // 1. Load a list of common shader configurations from a database
@@ -1174,7 +1173,6 @@ void Java_org_citra_citra_1emu_NativeLibrary_precompileCommonShaders(JNIEnv* env
         LOG_INFO(Frontend, "Starting precompilation of common shaders...");
 
         // Restore original cache setting
-        Settings::values.use_disk_shader_cache = original_cache_setting;
 
         LOG_INFO(Frontend, "Common shader precompilation completed");
     } catch (const std::exception& e) {
