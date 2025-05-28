@@ -1872,7 +1872,8 @@ class SettingsFragmentPresenter(private val fragmentView: SettingsFragmentView) 
                     BooleanSetting.SHADER_CACHE_CONSERVATIVE.key,
                     BooleanSetting.SHADER_CACHE_CONSERVATIVE.defaultValue
                 )
-            )            add(
+            )
+            add(
                 SliderSetting(
                     IntSetting.SHADER_CACHE_MAX_SIZE_MB,
                     R.string.shader_cache_max_size,
