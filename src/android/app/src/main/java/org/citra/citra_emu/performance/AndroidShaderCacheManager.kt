@@ -74,7 +74,7 @@ class AndroidShaderCacheManager(private val context: Context) {
             createCacheDirectories()
             determineOptimalCacheSize()
             initializeNativeCache()
-            startBackgroundMaintenance()
+            startBackgroundMaintenance2()
 
             isInitialized = true
             Log.i(TAG, "Android shader cache manager initialized - Device: $deviceClass, Max cache: ${maxCacheSize}MB")
@@ -209,7 +209,7 @@ class AndroidShaderCacheManager(private val context: Context) {
         }
     }
 
-    private fun startBackgroundMaintenance() {
+    private fun startBackgroundMaintenance2() {
         backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
 
         // Schedule periodic cache cleanup
@@ -390,10 +390,10 @@ class AndroidShaderCacheManager(private val context: Context) {
         if (!isInitialized) return
 
         try {
-            val availableStorage = getAvailableStorage()
+            val availableStorage = getAvailableStorageGB()
             if (availableStorage < CRITICAL_STORAGE_GB * 1024L * 1024L * 1024L) {
                 Log.w(TAG, "Critical storage space, applying aggressive cache optimization")
-                setCacheStrategy(CacheStrategy.CONSERVATIVE)
+                applyCacheStrategy(CacheStrategy.CONSERVATIVE)
 
                 // Reduce cache size significantly
                 val criticalCacheSize = MIN_CACHE_SIZE / 2
@@ -403,7 +403,7 @@ class AndroidShaderCacheManager(private val context: Context) {
                 clearOldCacheFiles()
             } else if (availableStorage < MIN_FREE_STORAGE_GB * 1024L * 1024L * 1024L) {
                 Log.i(TAG, "Low storage space, optimizing cache usage")
-                setCacheStrategy(CacheStrategy.CONSERVATIVE)
+                applyCacheStrategy(CacheStrategy.CONSERVATIVE)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to optimize for storage", e)
@@ -420,7 +420,7 @@ class AndroidShaderCacheManager(private val context: Context) {
         }
 
         backgroundExecutor?.scheduleWithFixedDelay({
-            performBackgroundMaintenance()
+            startBackgroundMaintenance2()
         }, CACHE_CLEANUP_INTERVAL_MS, CACHE_CLEANUP_INTERVAL_MS, TimeUnit.MILLISECONDS)
 
         Log.d(TAG, "Background maintenance started")
@@ -436,11 +436,11 @@ class AndroidShaderCacheManager(private val context: Context) {
 
         try {
             // Apply shader cache settings from the settings system
-            val cacheEnabled = BooleanSetting.SHADER_CACHE_ENABLED.getBoolean()
-            val aggressiveCache = BooleanSetting.SHADER_CACHE_AGGRESSIVE.getBoolean()
-            val conservativeCache = BooleanSetting.SHADER_CACHE_CONSERVATIVE.getBoolean()
-            val maxSizeMB = IntSetting.SHADER_CACHE_MAX_SIZE_MB.getInt()
-            val compressionLevel = IntSetting.SHADER_CACHE_COMPRESSION_LEVEL.getInt()
+            val cacheEnabled = BooleanSetting.SHADER_CACHE_ENABLED
+            val aggressiveCache = BooleanSetting.SHADER_CACHE_AGGRESSIVE
+            val conservativeCache = BooleanSetting.SHADER_CACHE_CONSERVATIVE
+            val maxSizeMB = IntSetting.SHADER_CACHE_MAX_SIZE_MB
+            val compressionLevel = IntSetting.SHADER_CACHE_COMPRESSION_LEVEL
 
             // Apply cache strategy based on settings
             val strategy = when {
@@ -450,7 +450,7 @@ class AndroidShaderCacheManager(private val context: Context) {
                 else -> CacheStrategy.BALANCED
             }
 
-            setCacheStrategy(strategy)
+            applyCacheStrategy(strategy)
 
             if (cacheEnabled && maxSizeMB > 0) {
                 NativeLibrary.setShaderCacheMaxSize(maxSizeMB * 1024 * 1024)
