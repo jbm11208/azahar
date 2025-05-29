@@ -436,11 +436,11 @@ class AndroidShaderCacheManager(private val context: Context) {
 
         try {
             // Apply shader cache settings from the settings system
-            val cacheEnabled = BooleanSetting.SHADER_CACHE_ENABLED
-            val aggressiveCache = BooleanSetting.SHADER_CACHE_AGGRESSIVE
-            val conservativeCache = BooleanSetting.SHADER_CACHE_CONSERVATIVE
-            val maxSizeMB = IntSetting.SHADER_CACHE_MAX_SIZE_MB
-            val compressionLevel = IntSetting.SHADER_CACHE_COMPRESSION_LEVEL
+            val cacheEnabled = BooleanSetting.SHADER_CACHE_ENABLED.defaultValue
+            val aggressiveCache = BooleanSetting.SHADER_CACHE_AGGRESSIVE.defaultValue
+            val conservativeCache = BooleanSetting.SHADER_CACHE_CONSERVATIVE.defaultValue
+            val maxSizeMB = IntSetting.SHADER_CACHE_MAX_SIZE_MB.defaultValue
+            val compressionLevel = IntSetting.SHADER_CACHE_COMPRESSION_LEVEL.defaultValue
 
             // Apply cache strategy based on settings
             val strategy = when {
